@@ -1,122 +1,140 @@
-\# CIFAR-10 Image Classifier
+# CIFAR-10 Image Classifier
 
+A deep-learning image classifier built with **PyTorch** and a **ResNet-9-style CNN**, trained from scratch on the CIFAR-10 dataset. The project includes an interactive **Gradio app** that predicts the class of an uploaded image.
 
+<p align="center">
+  <strong>91.04% test accuracy · 10 classes · PyTorch</strong>
+</p>
 
-A ResNet-9-style CNN trained from scratch in PyTorch on CIFAR-10, with a Gradio demo. \*\*91.04% test accuracy in 10 epochs.\*\*
+## 🎬 Demo
 
+Try the app locally by following the setup instructions below.
 
+<!-- Replace the URL below with the GitHub video-attachment URL after uploading test_video_cifar10.mp4.
+     To get one: edit this README on GitHub, drag the MP4 into the editor, wait for the upload,
+     and keep the generated https://github.com/user-attachments/assets/... URL. -->
 
-!\[demo](assets/demo.png)
+**Watch the application demo:**
 
+`PASTE_GITHUB_VIDEO_ATTACHMENT_URL_HERE`
 
+## ✨ Features
 
-\## Demo
+- Classifies uploaded images into one of the 10 CIFAR-10 categories.
+- Displays the **top-5 predicted classes** and their confidence scores.
+- Shows the resized **32 × 32** image the model receives.
+- Displays a warning when the top prediction confidence is below 60%.
+- Includes a training script and a saved model checkpoint.
 
+## 🧠 Model & Results
 
+The classifier uses a ResNet-9-style convolutional neural network implemented in PyTorch.
+
+| Experiment | Model / setup | Validation accuracy | Test accuracy |
+|---|---|---:|---:|
+| 1 | VGG-style CNN, no augmentation | 84.41%* | — |
+| 2 | VGG-style CNN with augmentation | 82.06% | — |
+| 3 | ResNet-9-style CNN with OneCycleLR | 92.04% | **91.04%** |
+
+\*The first experiment selected its best epoch using the test set, so its validation-style result is optimistic. The final model uses a validation split to select the checkpoint and evaluates on the held-out test set.
+
+**Training setup**
+
+- Dataset split: 45,000 training images, 5,000 validation images, and 10,000 test images.
+- Augmentation: random crop and horizontal flip.
+- Optimizer: Adam with weight decay.
+- Learning-rate schedule: OneCycleLR.
+- Batch size: 400.
+- Training: 10 epochs; a Kaggle T4 GPU was used for the reported run.
+
+Results are from a single run (seed 42), so small variations may occur between runs.
+
+## 🗂️ Project Structure
+
+```text
+cifar10-image-classifier/
+├── app.py              # Gradio interface and prediction logic
+├── model.py            # CNN architecture
+├── train.py            # Training and evaluation
+├── best.pt             # Trained model weights
+├── requirements.txt    # Python dependencies
+└── assets/              # Screenshots and project media
+```
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/Salman-Elhaddadi/cifar10-image-classifier.git
+cd cifar10-image-classifier
+```
 
+### 2. Create a virtual environment (recommended)
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+- **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
+- **macOS / Linux:** `source .venv/bin/activate`
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-
-python app.py
-
 ```
 
-
-
-Drop in an image to get the top-5 predictions and the 32x32 version the model actually sees. Below 60% confidence, the app warns that the image may not be one of the 10 classes.
-
-
-
-\## Results
-
-
-
-| Version | Setup | Val acc | Test acc |
-
-|---|---|---|---|
-
-| 1 | Small VGG-style CNN (32-64-128 channels), no augmentation | 84.41%\* | not reported |
-
-| 2 | Same model + augmentation, proper 45k/5k train/val split | 82.06% | not reported |
-
-| 3 | ResNet-9-style CNN + OneCycle LR (this repo) | 92.04% | \*\*91.04%\*\* |
-
-
-
-\\\*Version 1 picked its best epoch on the test set, so that number is optimistic. Version 2 fixes the leak, which is why it scores lower. The final test accuracy is measured once, on the best checkpoint chosen by validation accuracy.
-
-
-
-Single run, seed 42. Expect around ±0.3% variation between seeds.
-
-
-
-\## Model
-
-
-
-`model.py`: conv-BatchNorm-ReLU blocks with two residual blocks (128 and 512 channels), max-pooling, global max pool, dropout (0.2), and a linear classifier. About 6.57M parameters.
-
-
-
-\## Training
-
-
-
-\- Data: 45,000 train / 5,000 validation split from the CIFAR-10 training set, 10,000 test images untouched
-
-\- Augmentation: random crop (32, padding 4, reflect) and horizontal flip, with CIFAR-10 mean/std normalization
-
-\- Optimizer: Adam (weight decay 1e-4), OneCycleLR with max LR 0.01, batch size 400, gradient clipping at 0.1
-
-\- 10 epochs on a free Kaggle T4 GPU (training on CPU works but is slow)
-
-
+### 4. Run the app
 
 ```bash
+python app.py
+```
 
+Open the local URL printed by Gradio in your terminal, then upload an image to get predictions.
+
+## 🏋️ Train the Model
+
+To train the model again:
+
+```bash
 python train.py
-
 ```
 
+The script saves the checkpoint selected using validation accuracy to `best.pt` and reports the final test accuracy. Training on CPU is possible, but may be considerably slower.
 
+## 📦 Dataset
 
-This saves the best-validation checkpoint to `best.pt` and prints the final test accuracy.
+This project uses **CIFAR-10**, a dataset of 60,000 32 × 32 RGB images across 10 classes:
 
+`airplane` · `automobile` · `bird` · `cat` · `deer` · `dog` · `frog` · `horse` · `ship` · `truck`
 
+- 50,000 images are provided for training.
+- 10,000 images are provided for testing.
 
-\## Limitations
+The model resizes uploaded images to 32 × 32 pixels, so clear images with a prominent object generally work best.
 
+## ⚠️ Limitations
 
+- The model only predicts one of the 10 CIFAR-10 classes. An unrelated image may still be assigned to a class.
+- Images are reduced to 32 × 32 pixels, which can remove fine details.
+- Confidence scores are not calibrated probabilities; a high score does not guarantee a correct prediction.
 
-\- Only 10 classes (airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck). Anything else is forced into one of them.
+## 🛠️ Built With
 
-\- Input is downscaled to 32x32, so the model works best on clear photos with one centered object.
+- [Python](https://www.python.org/)
+- [PyTorch](https://pytorch.org/)
+- [Torchvision](https://pytorch.org/vision/stable/index.html)
+- [Gradio](https://www.gradio.app/)
 
-\- Softmax confidence is not calibrated, and out-of-distribution images can still get high scores.
+## 👤 Author
 
+**Salman Elhaddadi**
 
+- GitHub: [@Salman-Elhaddadi](https://github.com/Salman-Elhaddadi)
 
-\## Structure
+---
 
-
-
-```
-
-.
-
-├── app.py          # Gradio demo
-
-├── model.py        # CNN architecture
-
-├── train.py        # training + evaluation
-
-├── best.pt         # trained weights
-
-├── requirements.txt
-
-└── assets/         # screenshots
-
-```
-
+If you find this project interesting, consider giving the repository a ⭐.
