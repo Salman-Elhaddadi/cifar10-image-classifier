@@ -1,67 +1,70 @@
 # CIFAR-10 Image Classifier
 
-A deep-learning image classifier built with **PyTorch** and a **ResNet-9-style CNN**, trained from scratch on the CIFAR-10 dataset. The project includes an interactive **Gradio app** that predicts the class of an uploaded image.
+A deep-learning image classifier built with **PyTorch** and a **ResNet-9-style convolutional neural network**, trained on the CIFAR-10 dataset. An interactive **Gradio** application lets users upload an image and inspect the model's predictions.
 
 <p align="center">
   <strong>91.04% test accuracy · 10 classes · PyTorch</strong>
 </p>
 
-## 🎬 Demo
+## Demo
 
-Try the app locally by following the setup instructions below.
+Watch the application demo below.
 
-<!-- Replace the URL below with the GitHub video-attachment URL after uploading test_video_cifar10.mp4.
-     To get one: edit this README on GitHub, drag the MP4 into the editor, wait for the upload,
-     and keep the generated https://github.com/user-attachments/assets/... URL. -->
+<!-- Upload the MP4 through GitHub's README editor and replace the placeholder with the
+     generated https://github.com/user-attachments/assets/... URL. -->
 
-**Watch the application demo:**
+PASTE_GITHUB_VIDEO_ATTACHMENT_URL_HERE
 
-`PASTE_GITHUB_VIDEO_ATTACHMENT_URL_HERE`
+## Features
 
-## ✨ Features
-
-- Classifies uploaded images into one of the 10 CIFAR-10 categories.
-- Displays the **top-5 predicted classes** and their confidence scores.
-- Shows the resized **32 × 32** image the model receives.
+- Predicts one of the 10 CIFAR-10 categories for an uploaded image.
+- Displays the top-5 predicted classes and their confidence scores.
+- Shows the 32 × 32 image passed to the model.
 - Displays a warning when the top prediction confidence is below 60%.
-- Includes a training script and a saved model checkpoint.
+- Includes the model architecture, training script, and saved checkpoint.
 
-## 🧠 Model & Results
+## Model and Results
 
-The classifier uses a ResNet-9-style convolutional neural network implemented in PyTorch.
+The final classifier is a ResNet-9-style CNN implemented in PyTorch.
 
-| Experiment | Model / setup | Validation accuracy | Test accuracy |
-|---|---|---:|---:|
-| 1 | VGG-style CNN, no augmentation | 84.41%* | — |
-| 2 | VGG-style CNN with augmentation | 82.06% | — |
-| 3 | ResNet-9-style CNN with OneCycleLR | 92.04% | **91.04%** |
+| Experiment | Model / setup | Reported accuracy |
+|---|---|---:|
+| 1 | VGG-style CNN, no augmentation | 84.41%* |
+| 2 | VGG-style CNN with augmentation | 82.06% |
+| 3 | ResNet-9-style CNN with OneCycleLR | **91.04% test accuracy** |
 
-\*The first experiment selected its best epoch using the test set, so its validation-style result is optimistic. The final model uses a validation split to select the checkpoint and evaluates on the held-out test set.
+\*In the first experiment, the best epoch was selected using the test set, so its reported result is not a clean held-out evaluation. The final model selects its checkpoint using validation accuracy and evaluates on the test set.
 
-**Training setup**
+### Training configuration
 
 - Dataset split: 45,000 training images, 5,000 validation images, and 10,000 test images.
 - Augmentation: random crop and horizontal flip.
 - Optimizer: Adam with weight decay.
-- Learning-rate schedule: OneCycleLR.
+- Learning-rate scheduler: OneCycleLR.
 - Batch size: 400.
-- Training: 10 epochs; a Kaggle T4 GPU was used for the reported run.
+- Training duration: 10 epochs.
+- Reported training hardware: Kaggle T4 GPU.
 
-Results are from a single run (seed 42), so small variations may occur between runs.
+Results are from one run with seed 42; results may vary between runs.
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```text
 cifar10-image-classifier/
 ├── app.py              # Gradio interface and prediction logic
 ├── model.py            # CNN architecture
 ├── train.py            # Training and evaluation
-├── best.pt             # Trained model weights
-├── requirements.txt    # Python dependencies
-└── assets/              # Screenshots and project media
+├── best.pt              # Trained model checkpoint
+└── requirements.txt    # Python dependencies
 ```
 
-## 🚀 Getting Started
+## Getting Started
+
+### Requirements
+
+- Python 3.10 or later recommended
+- pip
+- Internet access on the first run if the dataset needs to be downloaded
 
 ### 1. Clone the repository
 
@@ -70,16 +73,21 @@ git clone https://github.com/Salman-Elhaddadi/cifar10-image-classifier.git
 cd cifar10-image-classifier
 ```
 
-### 2. Create a virtual environment (recommended)
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-Activate it:
+**Windows PowerShell**
+```powershell
+.venv\Scripts\Activate.ps1
+```
 
-- **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
-- **macOS / Linux:** `source .venv/bin/activate`
+**macOS / Linux**
+```bash
+source .venv/bin/activate
+```
 
 ### 3. Install dependencies
 
@@ -87,54 +95,59 @@ Activate it:
 pip install -r requirements.txt
 ```
 
-### 4. Run the app
+### 4. Launch the application
 
 ```bash
 python app.py
 ```
 
-Open the local URL printed by Gradio in your terminal, then upload an image to get predictions.
+Open the local Gradio URL printed in the terminal, upload an image, and review the predictions.
 
-## 🏋️ Train the Model
+## Train the Model
 
-To train the model again:
+To train the model again, run:
 
 ```bash
 python train.py
 ```
 
-The script saves the checkpoint selected using validation accuracy to `best.pt` and reports the final test accuracy. Training on CPU is possible, but may be considerably slower.
+The training script selects the checkpoint using validation accuracy and reports performance on the test set. Training on a CPU is possible but may take considerably longer.
 
-## 📦 Dataset
+## Dataset
 
-This project uses **CIFAR-10**, a dataset of 60,000 32 × 32 RGB images across 10 classes:
+This project uses **CIFAR-10**, a dataset of 60,000 small, colour RGB images, each sized 32 × 32 pixels, across 10 categories.
 
-`airplane` · `automobile` · `bird` · `cat` · `deer` · `dog` · `frog` · `horse` · `ship` · `truck`
+| Category | Category | Category |
+|---|---|---|
+| Airplane | Automobile | Bird |
+| Cat | Deer | Dog |
+| Frog | Horse | Ship |
+| Truck | | |
 
 - 50,000 images are provided for training.
 - 10,000 images are provided for testing.
 
-The model resizes uploaded images to 32 × 32 pixels, so clear images with a prominent object generally work best.
+Uploaded images are resized to 32 × 32 pixels before inference. Images with a clear, prominent subject are generally easier to classify.
 
-## ⚠️ Limitations
+## Limitations
 
-- The model only predicts one of the 10 CIFAR-10 classes. An unrelated image may still be assigned to a class.
-- Images are reduced to 32 × 32 pixels, which can remove fine details.
-- Confidence scores are not calibrated probabilities; a high score does not guarantee a correct prediction.
+- The classifier only predicts among the 10 CIFAR-10 categories. Unrelated images will still be assigned to one of these classes.
+- Resizing images to 32 × 32 pixels removes fine details.
+- Confidence scores should not be interpreted as calibrated probabilities or a guarantee of correctness.
 
-## 🛠️ Built With
+## Technology Stack
 
 - [Python](https://www.python.org/)
 - [PyTorch](https://pytorch.org/)
 - [Torchvision](https://pytorch.org/vision/stable/index.html)
 - [Gradio](https://www.gradio.app/)
 
-## 👤 Author
+## Author
 
 **Salman Elhaddadi**
 
-- GitHub: [@Salman-Elhaddadi](https://github.com/Salman-Elhaddadi)
+[GitHub Profile](https://github.com/Salman-Elhaddadi)
 
 ---
 
-If you find this project interesting, consider giving the repository a ⭐.
+If you find this project useful, consider giving the repository a star.
